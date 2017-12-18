@@ -8,43 +8,59 @@
         </div>
         <div class="msg" style="display">
           <p v-text="fire.name"></p>
-          <p>供应商编码：<span v-text="fire.num"></span></p>
-          <p>业务类型：<span v-text="fire.type"></span></p>
+          <p>供应商编码：
+            <span v-text="fire.num"></span>
+          </p>
+          <p>业务类型：
+            <span v-text="fire.type"></span>
+          </p>
         </div>
         <div class="menu">
           <el-badge v-for="item in menus" :value="item.num" class="item">
-              <span>
-                <img :src="item.src" alt="">
-                <p>{{item.num}}</p>
-                <p>{{item.intro}}</p>
-              </span>
+            <span @click="toRouter(item.path)">
+              <img :src="item.src" alt="">
+              <p>{{item.num}}</p>
+              <p>{{item.intro}}</p>
+            </span>
           </el-badge>
         </div>
       </div>
     </el-card>
 
     <div class="card-two">
-      <el-card class="box-card">
+      <el-card>
+        <div class="triangle"><span class="text">账号信息</span></div>
         <div class="info">
-          <p><span class="info-font">会员编码：</span><span class="content" v-text="account.code"></span></p>
-          <p><span class="info-font">会员账号：</span><span class="content" v-text="account.id"></span></p>
-          <p><span class="info-font">会员密码：</span><span class="content" v-if="account.password" v-text="account.password"></span><el-button type="info" @click="alter('password')">修改</el-button></p>
-          <p><span class="info-font">手机号：</span><span class="content" v-text="account.tel"></span><el-button type="info" @click="alter('tel')">修改</el-button></p>
-          <p><span class="info-font">邮箱：</span><span class="content" v-text="account.email"></span><el-button type="info" @click="alter('email')">修改</el-button></p>
-          <p><span class="info-font">账户类别：</span><span class="content" v-text="account.type"></span></p>
-          <p><span class="info-font">账户级别：</span><span class="content" v-text="account.power"></span></p>
+          <p v-for="(item,key) of account">
+            <span class="info-font" v-text="item.name+':'"></span>
+            <span class="content" v-text="item.value"></span>
+            <el-button type="info" @click="alter(key)" v-if="item.alter">修改</el-button>
+          </p>
         </div>
       </el-card>
-      <el-card class="box-card">
+      <el-card>
+        <div class="triangle"><span class="text">账号信息</span></div>
         <div class="server">
-          <p><span class="info-font">结算方式：</span>{{info.way}}</p>
-          <p><span class="info-font">服务范围：</span><el-tag v-for="item in info.range" type="info">{{item}}</el-tag></p>
-          <h4><span class="info-font">服务项</span>{{info.project}}</h4>
-          <div class="menu">
-            <span v-for="item in servers">
-              <img :src="item.src" alt="">
-              <p>{{item.intro}}</p>
-            </span>
+          <p>
+            <span class="info-font">结算方式：</span>{{info.way}}
+          </p>
+          <p>
+            <span class="info-font">服务范围：</span>
+            <el-tag v-for="item in info.range" type="info">{{item}}</el-tag>
+          </p>
+          <div class="pos">
+            <h4>
+              <span class="info-font">服务项</span>{{info.project}}
+            </h4>
+            <div class="menu">
+              <ul>
+                <li v-for="item in servers" @click="toRouter(item.path)">
+                  <span class="note" v-text="item.note"></span>
+                  <div class="wrap"><img :src="item.src" alt=""></div>
+                  <p v-text="item.intro"></p>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
       </el-card>
@@ -52,19 +68,20 @@
 
 
 
-
-
-    <el-dialog title="信息修改" :visible.sync="dialogFormVisible">
-      <el-form :model="account">
-        <el-form-item label="活动名称" >
+    <el-dialog title="会员信息修改" :visible.sync="dialogFormVisible">
+      <el-form>
+        <el-form-item :label="'请输入新的'+account[dialogType].name">
           <el-input auto-complete="off"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
+        <el-button @click="dialogChange">取 消</el-button>
+        <el-button type="primary" @click="dialogChange">确 定</el-button>
       </div>
     </el-dialog>
+
+
+
   </div>
 </template>
 <script>
@@ -72,6 +89,7 @@ export default {
   data() {
     return {
       dialogFormVisible: false,
+      dialogType: "email",
       fire: {
         ico: require("../../../assets/head_img.png"),
         name: "海航速运（北京）优先责任公司",
@@ -82,32 +100,60 @@ export default {
         {
           src: require("@/assets/account_icon1.png"),
           num: 0,
-          intro: "待接单"
+          intro: "待接单",
+          path: "/"
         },
         {
           src: require("@/assets/account_icon2.png"),
           num: 2,
-          intro: "待收货"
+          intro: "待收货",
+          path: "/"
         },
         {
           src: require("@/assets/account_icon3.png"),
           num: 0,
-          intro: "运输中"
+          intro: "运输中",
+          path: "/"
         },
         {
           src: require("@/assets/account_icon4.png"),
           num: 0,
-          intro: "已完成"
+          intro: "已完成",
+          path: "/"
         }
       ],
       account: {
-        code: "HH00001",
-        id: "YOYO2017",
-        password: "",
-        tel: "13900000000",
-        email: "123456@qq.com",
-        type: "",
-        power: ""
+        code: {
+          name: "会员编码",
+          value: "HH00001"
+        },
+        id: {
+          name: "会员账号",
+          value: "YOYO2017"
+        },
+        password: {
+          name: "会员密码",
+          value: "HH00001",
+          alter: true
+        },
+        tel: {
+          name: "手机号",
+          value: "13900000000",
+          alter: true
+        },
+        email: {
+          name: "邮箱",
+          value: "123456@qq.com",
+          alter: true
+        },
+        type: {
+          name: "账户类别",
+          value: ""
+        },
+        power: {
+          name: "账户级别",
+          value: ""
+        }
       },
       info: {
         way: "月结",
@@ -117,53 +163,86 @@ export default {
       servers: [
         {
           src: require("@/assets/detail_info_img1.png"),
-          intro: "航空运输服务"
+          intro: "航空运输服务",
+          note: "A",
+          path: "/"
         },
         {
           src: require("@/assets/detail_info_img2.png"),
-          intro: "航空运输服务"
+          intro: "航空运输服务",
+          note: "B",
+          path: "/"
         },
         {
           src: require("@/assets/detail_info_img3.png"),
-          intro: "航空运输服务"
+          intro: "航空运输服务",
+          note: "B",
+          path: "/"
         },
         {
           src: require("@/assets/detail_info_img4.png"),
-          intro: "航空运输服务"
+          intro: "航空运输服务",
+          note: "D",
+          path: "/"
         },
         {
           src: require("@/assets/detail_info_img5.png"),
-          intro: "航空运输服务"
+          intro: "航空运输服务",
+          note: "E",
+          path: "/"
         }
       ]
     };
   },
   methods: {
+    toRouter(path) {
+      this.$router.push(path);
+    },
     alter(type) {
+      this.dialogType = type;
       this.dialogFormVisible = true;
+    },
+    dialogChange() {
+      this.dialogFormVisible = false;
     }
   }
 };
 </script>
 <style lang="scss" scoped>
+@mixin font {
+  display: inline-block;
+  width: 110px;
+  height: 18px;
+  margin-right: 15px;
+  text-align: justify;
+  overflow: hidden;
+  &::after {
+    width: 100%;
+    height: 0;
+    margin: 0;
+    display: inline-block;
+    overflow: hidden;
+    content: "";
+  }
+}
+
 .account {
   $orange: #fccf00;
-
   margin-top: 61px + 30px;
   margin-left: 25px;
   display: flex;
   flex-direction: column;
-  .card {
+  @mixin card {
     width: 100%;
-    height: 200px;
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
   }
   .card-one {
-    @extend .card;
+    @include card;
     justify-content: space-around;
     align-items: center;
+    padding: 15px 0;
     .msg {
       width: 400px;
       line-height: 40px;
@@ -173,6 +252,7 @@ export default {
       span {
         display: inline-block;
         padding: 10px;
+        cursor: pointer;
       }
       p {
         text-align: center;
@@ -181,83 +261,93 @@ export default {
   }
 
   .card-two {
-    @extend .card;
+    @include card;
     margin-top: 40px;
     justify-content: space-between;
-    .box-card {
-      height: 380px;
-      &::before {
-        content: "";
+    .triangle {
+      position: absolute;
+      width: 0;
+      height: 0;
+      border-top: 80px solid $orange;
+      border-right: 80px solid transparent;
+      .text {
         position: absolute;
-        width: 0;
-        height: 0;
-        border-top: 60px solid $orange;
-        border-right: 60px solid transparent;
+        width: 100px;
+        transform-origin: left top;
+        transform: rotate(-45deg) translate(28%, -125%);
+        color: white;
+        font-size: 14px;
       }
     }
-    .font {
-      display: inline-block;
-      width: 110px;
-      height: 18px;
-      margin-right: 15px;
-      text-align: justify;
-      overflow: hidden;
-      &::after {
-        width: 100%;
-        height: 0;
-        margin: 0;
-        display: inline-block;
-        overflow: hidden;
-        content: "";
-      }
-    }
+
     $all-width: 1100px;
-    $info-width: 640px;
+    $info-width: 650px;
     .info {
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       width: $info-width;
-      padding-left: 40px;
-      .info-font {
-        @extend .font;
-      }
+      padding-left: 60px;
       .content {
         display: inline-block;
         width: 150px;
       }
     }
+    $paddingLeft: 60px;
     .server {
       width: $all-width - $info-width;
-      padding-left: 20px;
-      .info-font {
-        @extend .font;
-      }
+      padding-left: $paddingLeft;
       h4 {
         text-align: center;
       }
       .menu {
-        span {
+        ul {
+          padding: 0;
+        }
+        li {
+          position: relative;
           display: inline-block;
           text-align: center;
           padding: 10px;
+          cursor: pointer;
+          .wrap {
+            height: 45px;
+          }
         }
+      }
+      .note {
+        position: absolute;
+        right: 0;
+        top: 0;
+      }
+    }
+    .info,
+    .server {
+      padding-top: 12px;
+      .info-font {
+        @include font;
+      }
+      .pos {
+        margin-left: -$paddingLeft + 20;
       }
     }
   }
 }
 </style>
 <style lang="scss">
+$gray: #909399;
 .account .el-card {
+  border: 0;
   font-size: 15px;
   color: #a0a0a0;
-  box-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.1);
-  -webkit-box-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 7px -5px rgba(0, 0, 0, 0.2);
+  -webkit-box-shadow: 0 8px 7px -5px rgba(0, 0, 0, 0.2);
 }
+
 .account .el-button--info {
   color: #fff;
-  background-color: #909399;
-  border-color: #909399;
+  background-color: $gray;
+  border-color: $gray;
   width: 75px;
   padding: 1px;
 }
@@ -271,12 +361,19 @@ export default {
 }
 
 .account .el-tag {
+  $tagHeight: 20px;
   padding: 0 10px;
-  height: 26px;
-  line-height: 27px;
+  height: $tagHeight+1;
+  line-height: $tagHeight;
   font-size: 12px;
   margin-right: 8px;
   border-radius: 4px;
   box-sizing: border-box;
+  border-color: $gray;
+  color: $gray;
+}
+
+.account .el-card__body {
+  padding: 0;
 }
 </style>
